@@ -8,7 +8,7 @@
   "files": [
     "dist",
     "types",
-    "vitset.*"
+    "vitest.*"
   ],
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",

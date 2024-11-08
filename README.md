@@ -1,6 +1,6 @@
 # @maboroshi/expect-to-match-table-content
 
-Vitest の `expect` を拡張し、テーブルの内容と構造を一括で検証するための `toMatchTableContent` マッチャーを追加します。
+Vitest の `expect` を拡張して、テーブルの内容と構造を一括で検証するための `toMatchTableContent` マッチャーを追加します。
 
 ## インストール
 
@@ -42,8 +42,7 @@ function Table() {
     <table>
       <thead>
         <tr>
-          <th>First Name</th>
-          <th>Last Name</th>
+          <th>Name</th>
           <th>Role</th>
           <th>Email</th>
         </tr>
@@ -51,25 +50,20 @@ function Table() {
       <tbody>
         <tr>
           <td>Alice</td>
-          <td>Johnson</td>
           <td>Admin</td>
           <td>
-            <a href="mailto:alice.johnson@example.com">
-              alice.johnson@example.com
-            </a>
+            <a href="mailto:alice@example.com">alice@example.com</a>
           </td>
         </tr>
         <tr>
           <td>Bob</td>
-          <td>Smith</td>
           <td>Editor</td>
           <td>
-            <a href="mailto:bob.smith@example.com">bob.smith@example.com</a>
+            <a href="mailto:bob@example.com">bob@example.com</a>
           </td>
         </tr>
         <tr>
           <td>Charlie</td>
-          <td>Brown</td>
           <td>Viewer</td>
           <td />
         </tr>
@@ -83,59 +77,92 @@ test("should render table", () => {
 
   expect(screen.getByRole("table")).toMatchTableContent({
     // ヘッダー行の内容を検証
-    header: [["First Name", "Last Name", "Role", "Email"]],
+    header: [["Name", "Role", "Email"]],
 
     // ボディの各行を検証
     body: [
       [
         // 文字列の一致
         "Alice",
-        "Johnson",
         // 正規表現のパターンマッチング
         /admin/i,
-        "alice.johnson@example.com",
+        "alice@example.com",
       ],
       [
         "Bob",
-        "Smith",
         /editor/i,
         // 関数によるカスタムチェック
         (node) => {
           const link = within(node).getByRole("link")
-          expect(link).toHaveAttribute("href", "mailto:bob.smith@example.com")
+          expect(link).toHaveAttribute("href", "mailto:bob@example.com")
         },
       ],
-      ["Charlie", "Brown", /viewer/i, emptyString],
+      ["Charlie", /viewer/i, emptyString],
     ],
   })
 })
 ```
 
-アサーションに失敗した際は、 コンソールに以下のようなエラーメッセージが表示されます。
+アサーションに失敗した場合は、 コンソールに以下のスクリーンショットのような視覚的なエラーメッセージが表示されます。
 
 ```ts
 test("should be failed", () => {
   render(<Table />)
 
   expect(screen.getByRole("table")).toMatchTableContent({
-    header: [["First Name", "Last Name", "Role", "Email"]],
+    header: [["Name", "Role", "Email"]],
     body: [
       // ↓ 不一致
-      ["Aliceeeee", "Johnsonnnnn", /admin/i, "alice.johnson@example.com"],
+      ["Aliceeeee", /admin/i, "alice@example.com"],
       [
         "Bob",
-        "Smith",
         /editor/i,
         (node) => {
           const link = within(node).getByRole("link")
           // ↓ 属性値の不一致
-          expect(link).toHaveAttribute("href", "bob.smith@example.com")
+          expect(link).toHaveAttribute("href", "bob@example.com")
         },
       ],
-      ["Charlie", "Brown", /viewer/i, emptyString],
+      ["Charlie", /viewer/i, emptyString],
     ],
   })
 })
 ```
 
-![テストが失敗した際のコンソールのスクリーンショット。エラー内容がアスキーアートを使って視覚的に表現されている。](assets/screenshot.png)
+![テストが失敗した際のコンソールのスクリーンショット。エラーの内容がアスキーアートを使って視覚的に表現されている。](docs/assets/screenshot.png)
+
+### `emptyString` と `skipToCheck` の使い方
+
+#### `emptyString`
+
+`emptyString` は、セルの内容が空であることを確認するために使用します。  
+通常、 空文字列はすべての内容にマッチするため、 空白セルのテストには `emptyString` を指定することで、 セルが実際に空であることを厳密に検証できます。
+
+```tsx
+import { emptyString } from "@maboroshi/expect-to-match-table-content"
+
+...
+
+expect(table).toMatchTableContent({
+  body: [
+    ["Charlie", /viewer/i, emptyString], // 最後が空白セルであることを確認
+  ]
+})
+```
+
+#### `skipToCheck`
+
+`skipToCheck` は、 特定のセルを検証対象から外したい場合に使用します。  
+テストに無関係のセルや、 ランダムな値を含むセルの検証をスキップしたい場合に便利です。
+
+```tsx
+import { skipToCheck } from "@maboroshi/expect-to-match-table-content"
+
+...
+
+expect(table).toMatchTableContent({
+  body: [
+    ["Alice", "Admin", skipToCheck], // Email の検証をスキップ
+  ]
+})
+```

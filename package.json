@@ -1,6 +1,6 @@
 {
   "name": "@maboroshi/expect-to-match-table-content",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "type": "module",
   "publishConfig": {
     "access": "public"

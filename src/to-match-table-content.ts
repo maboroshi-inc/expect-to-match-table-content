@@ -16,6 +16,8 @@ export function toMatchTableContent(
   const body = aggregateRowData(received, expected, "body")
   const foot = aggregateRowData(received, expected, "footer")
 
+  // cli-table3 自体は colSpan, rowSpan にも対応している https://github.com/cli-table/cli-table3/blob/master/advanced-usage.md
+  // このマッチャーがどこまで表示をサポートするかは要検討
   const table = new Table({
     head: head.items[0],
   })
@@ -66,7 +68,10 @@ function aggregateRowData(
 
   return rows.reduce<AggregateResult>(
     (state, tr, rowIndex) => {
-      const { fail, items, help } = qsa(tr, ":is(th, td)").reduce<{
+      const { fail, items, help } = qsa<HTMLTableCellElement>(
+        tr,
+        ":is(th, td)",
+      ).reduce<{
         fail: boolean
         help: string[]
         items: string[]
@@ -105,7 +110,7 @@ function aggregateRowData(
 }
 
 function checkNodeContent(
-  node: Element,
+  node: HTMLElement,
   {
     expected,
     actual,
@@ -156,6 +161,12 @@ function checkNodeContent(
   }
 }
 
-function qsa(element: Element, selectors: string): Element[] {
+/**
+ * querySelectorAll の結果を配列として返すショートカット
+ */
+function qsa<const Elem extends Element>(
+  element: Element,
+  selectors: string,
+): Elem[] {
   return Array.from(element.querySelectorAll(selectors))
 }

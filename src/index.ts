@@ -3,7 +3,7 @@ export type Matcher =
   | RegExp
   | typeof skipToCheck
   | typeof emptyString
-  | ((element: Element) => void)
+  | ((element: HTMLElement) => void)
 
 export type TableContent = {
   header?: Matcher[][]

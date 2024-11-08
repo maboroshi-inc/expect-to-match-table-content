@@ -24,12 +24,12 @@
     },
     "./vitest": {
       "require": {
-        "types": "./types/vitest.d.ts",
-        "default": "./dist/vitest.cjs"
+        "types": "./vitest.d.ts",
+        "default": "./vitest.cjs"
       },
       "import": {
-        "types": "./types/vitest.d.ts",
-        "default": "./dist/vitest.js"
+        "types": "./vitest.d.ts",
+        "default": "./vitest.js"
       }
     }
   },

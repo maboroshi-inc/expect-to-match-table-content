@@ -131,6 +131,8 @@ test("should be failed", () => {
 
 ![テストが失敗した際のコンソールのスクリーンショット。エラーの内容がアスキーアートを使って視覚的に表現されている。](docs/assets/screenshot.png)
 
+このように複数のセルで不一致が起きても、 エラー内容はまとめて表示されます。
+
 ### `emptyString` と `skipToCheck` の使い方
 
 #### `emptyString`
@@ -166,3 +168,7 @@ expect(table).toMatchTableContent({
   ]
 })
 ```
+
+## 制限
+
+⚠️ `toMatchTableContent` はセルが結合されたテーブルで期待通りに動作しない場合があります。プルリクエストは歓迎します！
